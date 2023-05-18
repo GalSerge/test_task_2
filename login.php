@@ -23,6 +23,11 @@ if (isset($_GET['page']))
     logout_user();
     echo get_login_form();
     die();
+} else if (isset($_GET['login']))
+{
+
+    echo get_login_form();
+    die();
 }
 
 if (isset($_POST['login']) && isset($_POST['pass']) && $_POST['login'] != '' && $_POST['pass'] != '')

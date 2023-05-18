@@ -88,11 +88,25 @@ function delete_cookie_user($login)
 
 function get_user_page($user)
 {
-    return '
+    $result = '
 <h2>'.$user['name'].'</h2>
 <p>'.date('d.m.Y', strtotime($user['date_birth'])).'</p>
-<button type="button" onclick="exit()">Выйти</button>
-';
+<button type="button" onclick="exit()">Выйти</button>';
+
+    $auth_users = get_auth_users();
+
+    if (count($auth_users) > 0)
+    {
+        $auth_users_list = '<ul>';
+        foreach ($auth_users as $user)
+            $auth_users_list .= '<li onclick="change(\''.$user['login'].'\')">' . $user['name'] . '</li>';
+
+        $result .= $auth_users_list . '</ul>';
+    }
+
+    $result .= '<button type="button" onclick="add_new_user()">Добавить пользователя</button>';
+
+    return $result;
 }
 
 function get_login_form()
@@ -105,4 +119,25 @@ function get_login_form()
         </form>
     ';
 }
+
+function get_auth_users()
+{
+    $result = array();
+
+    if (!isset($_COOKIE['users']) || !isset($_SESSION['user']))
+        return $result;
+
+    $cookie_data = json_decode($_COOKIE['users'], true);
+    foreach ($cookie_data as $login => $_)
+    {
+        if ($_SESSION['user']['login'] == $login)
+            continue;
+
+        $user = get_user_by_login($login);
+        $result[$login] = array('name' => $user['name'], 'photo' => $user['photo']);
+    }
+
+    return $result;
+}
+
 

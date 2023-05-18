@@ -31,3 +31,13 @@ async function exit()
     if (response_page.status == 200)
         document.getElementById('page').innerHTML = await response_page.text();
 }
+
+async function add_new_user()
+{
+    const response_page = await fetch('login.php?login', {
+        method: 'GET'
+    });
+
+    if (response_page.status == 200)
+        document.getElementById('page').innerHTML = await response_page.text();
+}
