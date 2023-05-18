@@ -16,10 +16,12 @@ if (isset($_GET['page']))
     {
         $user = get_user_by_login($_SESSION['user']['login']);
         echo get_user_page($user);
-    } else
+    }
+    die();
+} else if (isset($_GET['exit']))
 {
-    echo '1';
-}
+    logout_user();
+    echo get_login_form();
     die();
 }
 

@@ -10,14 +10,12 @@ function auth_user($user)
         foreach ($cookie_data as $user_data)
             $user_data['active'] = false;
 
-        $cookie_data[] = array(
+        $cookie_data[$user['login']] = array(
             'active' => true,
-            'login' => $user['login'],
             'key' => $user['secret_key']);
     } else
-        $cookie_data = array(array(
+        $cookie_data = array($user['login'] => array(
             'active' => true,
-            'login' => $user['login'],
             'key' => $user['secret_key']));
 
     setcookie('users', json_encode($cookie_data), time()+60*60*24*30);
@@ -44,11 +42,67 @@ function get_user_by_login($login)
     return $result;
 }
 
+function auth_user_by_cookie()
+{
+    if (isset($_COOKIE['users']))
+    {
+        $cookie_data = json_decode($_COOKIE['users'], true);
+        foreach ($cookie_data as $login => $user_data)
+            if ($user_data['active'])
+            {
+                $user = get_user_by_login($login);
+                if ($user != null && $user['secret_key'] == $user_data['key'])
+                {
+                    $_SESSION['user'] = array('login' => $user['login'], 'user_id' => $user['user_id']);
+                    return true;
+                }
+            }
+    }
+
+    return false;
+}
+
+function logout_user()
+{
+    if (!isset($_SESSION['user']))
+        return false;
+
+    delete_cookie_user($_SESSION['user']['login']);
+    unset($_SESSION['user']);
+    return true;
+}
+
+function delete_cookie_user($login)
+{
+    if (!isset($_COOKIE['users']))
+        return false;
+
+    $cookie_data = json_decode($_COOKIE['users'], true);
+    unset($cookie_data[$login]);
+
+    setcookie('users', json_encode($cookie_data), time()+60*60*24*30);
+
+    return true;
+}
+
+
 function get_user_page($user)
 {
     return '
 <h2>'.$user['name'].'</h2>
 <p>'.date('d.m.Y', strtotime($user['date_birth'])).'</p>
+<button type="button" onclick="exit()">Выйти</button>
 ';
+}
+
+function get_login_form()
+{
+    echo '
+        <form id="login-form" method="post">
+            <input type="text" name="login" placeholder="Логин">
+            <input type="password" name="pass" placeholder="Пароль">
+            <button type="button" onclick="auth_user()">Войти</button>
+        </form>
+    ';
 }
 

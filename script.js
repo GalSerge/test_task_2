@@ -21,3 +21,13 @@ async function auth_user() {
         }
     }
 }
+
+async function exit()
+{
+    const response_page = await fetch('login.php?exit', {
+        method: 'GET'
+    });
+
+    if (response_page.status == 200)
+        document.getElementById('page').innerHTML = await response_page.text();
+}
