@@ -7,8 +7,8 @@ function auth_user($user)
     if (isset($_COOKIE['users']))
     {
         $cookie_data = json_decode($_COOKIE['users'], true);
-        foreach ($cookie_data as $user_data)
-            $user_data['active'] = false;
+        foreach ($cookie_data as $i => $user_data)
+            $cookie_data[$i]['active'] = false;
 
         $cookie_data[$user['login']] = array(
             'active' => true,
@@ -42,7 +42,25 @@ function get_user_by_login($login)
     return $result;
 }
 
-function auth_user_by_cookie()
+function auth_user_by_cookie($user)
+{
+    if (!isset($_COOKIE['users']))
+        return false;
+
+    $cookie_data = json_decode($_COOKIE['users'], true);
+
+    if (!isset($cookie_data[$user['login']]))
+        return false;
+
+    $user_data = $cookie_data[$user['login']];
+
+    if ($user['secret_key'] == $user_data['key'])
+        auth_user($user);
+
+    return true;
+}
+
+function auth_active_user_by_cookie()
 {
     if (isset($_COOKIE['users']))
     {
@@ -80,6 +98,10 @@ function delete_cookie_user($login)
     $cookie_data = json_decode($_COOKIE['users'], true);
     unset($cookie_data[$login]);
 
+    $login = array_key_first($cookie_data);
+    if ($login != null)
+        $cookie_data[$login]['active'] = true;
+
     setcookie('users', json_encode($cookie_data), time()+60*60*24*30);
 
     return true;
@@ -98,8 +120,8 @@ function get_user_page($user)
     if (count($auth_users) > 0)
     {
         $auth_users_list = '<ul>';
-        foreach ($auth_users as $user)
-            $auth_users_list .= '<li onclick="change(\''.$user['login'].'\')">' . $user['name'] . '</li>';
+        foreach ($auth_users as $login => $user)
+            $auth_users_list .= '<li onclick="change(\''.$login.'\')">' . $user['name'] . '</li>';
 
         $result .= $auth_users_list . '</ul>';
     }

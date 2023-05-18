@@ -7,7 +7,11 @@ include('config.php');
 include('functions.php');
 
 session_start();
-unset($_SESSION['user']);
+//unset($_SESSION['user']);
+//unset($_COOKIE['users']);
+
+var_dump($_COOKIE);
+//var_dump($_SESSION['user']);
 ?>
 
 <!doctype html>
@@ -24,19 +28,10 @@ unset($_SESSION['user']);
 
 <?
 if (!isset($_SESSION['user'])
-//&& !auth_user_by_cookie()
+&& !auth_active_user_by_cookie()
 )
 {
-
-        echo '
-        <form id="login-form" method="post">
-            <input type="text" name="login" placeholder="Логин">
-            <input type="password" name="pass" placeholder="Пароль">
-            <button type="button" onclick="auth_user()">Войти</button>
-        </form>
-
-    ';
-
+    echo get_login_form();
 } else
 {
     $user = get_user_by_login($_SESSION['user']['login']);

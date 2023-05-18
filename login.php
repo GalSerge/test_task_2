@@ -25,8 +25,17 @@ if (isset($_GET['page']))
     die();
 } else if (isset($_GET['login']))
 {
-
     echo get_login_form();
+    die();
+} else if (isset($_GET['select']))
+{
+    $user = get_user_by_login($_GET['select']);
+    var_dump($user);
+    if ($user != null && auth_user_by_cookie($user))
+        echo get_user_page($user);
+    else
+        echo get_login_form();
+
     die();
 }
 
