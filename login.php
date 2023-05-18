@@ -48,13 +48,25 @@ if (isset($_POST['login']) && isset($_POST['pass']) && $_POST['login'] != '' && 
         header('Content-Type: application/json');
         echo json_encode(array('ok' => false, 'msg' => 'Неверный логин'));
         die();
+    } else if ($user['failed_count'] > 5 &&
+        $user['last_failed_login'] != null &&
+        abs(strtotime($user['last_failed_login']) - time()) / 60 < 1)
+    {
+        header('Content-Type: application/json');
+        echo json_encode(array('ok' => false, 'msg' => 'Повторите попытку позже'));
+        die();
     } else if ($user['pass'] != md5($_POST['pass']))
     {
+        save_failed_login($user['user_id']);
+
         header('Content-Type: application/json');
         echo json_encode(array('ok' => false, 'msg' => 'Неверный пароль'));
         die();
     } else
+    {
+        clean_failed_login($user['user_id']);
         auth_user($user);
+    }
 
     header('Content-Type: application/json');
     echo json_encode(array('ok' => true, 'msg' => 'Добро пожаловать, ' . $user['name'] . '!'));

@@ -27,7 +27,7 @@ function get_user_by_login($login)
 
     $result = null;
 
-    $stmt = $db->prepare("SELECT * FROM `users` WHERE `login` = :login");
+    $stmt = $db->prepare('SELECT * FROM `users` WHERE `login` = :login');
     $stmt->execute(array('login' => $login));
 
     if ($stmt->rowCount() == 1)
@@ -160,6 +160,26 @@ function get_auth_users()
     }
 
     return $result;
+}
+
+function save_failed_login($user_id)
+{
+    global $db;
+
+    $stmt = $db->prepare('UPDATE `users` SET `failed_count` = `failed_count`+1,`last_failed_login` = :cur_time WHERE `user_id` = :user_id');
+    $stmt->execute(array(
+        'user_id' => $user_id,
+        'cur_time' => date('Y-m-d H:i:s')));
+}
+
+function clean_failed_login($user_id)
+{
+    global $db;
+
+    $stmt = $db->prepare('UPDATE `users` SET `failed_count` = 0,`last_failed_login`=:cur_time WHERE `user_id` = :user_id');
+    $stmt->execute(array(
+        'user_id' => $user_id,
+        'cur_time' => null));
 }
 
 

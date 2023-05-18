@@ -18,6 +18,9 @@ async function auth_user() {
 
             if (response_page.status == 200)
                 document.getElementById('page').innerHTML = await response_page.text();
+        } else
+        {
+            console.log(result);
         }
     }
 }
