@@ -30,7 +30,7 @@ if (isset($_GET['page']))
 } else if (isset($_GET['select']))
 {
     $user = get_user_by_login($_GET['select']);
-    var_dump($user);
+
     if ($user != null && auth_user_by_cookie($user))
         echo get_user_page($user);
     else

@@ -18,7 +18,7 @@ function auth_user($user)
             'active' => true,
             'key' => $user['secret_key']));
 
-    setcookie('users', json_encode($cookie_data), time()+60*60*24*30);
+    setcookie('users', json_encode($cookie_data), time() + 60 * 60 * 24 * 30);
 }
 
 function get_user_by_login($login)
@@ -102,7 +102,7 @@ function delete_cookie_user($login)
     if ($login != null)
         $cookie_data[$login]['active'] = true;
 
-    setcookie('users', json_encode($cookie_data), time()+60*60*24*30);
+    setcookie('users', json_encode($cookie_data), time() + 60 * 60 * 24 * 30);
 
     return true;
 }
@@ -111,22 +111,36 @@ function delete_cookie_user($login)
 function get_user_page($user)
 {
     $result = '
-<h2>'.$user['name'].'</h2>
-<p>'.date('d.m.Y', strtotime($user['date_birth'])).'</p>
-<button type="button" onclick="exit()">Выйти</button>';
+    <div class="content">
+        <div class="img">
+            <img src="images/users/' . $user['photo'] . '">
+        </div>
+        <div class="info">
+            <h1>' . $user['name'] . '</h1>
+            <p>Дата рождения: ' . date('d.m.Y', strtotime($user['date_birth'])) . '</p>
+        </div>
+    ';
+
+//    $result = '
+//<h2></h2>
+//<p>' . date('d.m.Y', strtotime($user['date_birth'])) . '</p>
+//<button type="button" onclick="exit()">Выйти</button>';
 
     $auth_users = get_auth_users();
 
-    if (count($auth_users) > 0)
-    {
-        $auth_users_list = '<ul>';
-        foreach ($auth_users as $login => $user)
-            $auth_users_list .= '<li onclick="change(\''.$login.'\')">' . $user['name'] . '</li>';
+    $auth_users_list = '<div class="selector"><div class="users">';
+    foreach ($auth_users as $login => $user)
+//            $auth_users_list .= '<li onclick="change(\'' . $login . '\')">' . $user['name'] . '</li>';
+        $auth_users_list .= '<span onclick="change(\'' . $login . '\')" title="' . $user['name'] . '" class="item_user"><img src="images/users/' . $user['photo'] . '"></span>';
 
-        $result .= $auth_users_list . '</ul>';
-    }
+    $result .= $auth_users_list . '<span onclick="add_new_user()" class="item_user user_add"><img src="images/plus.svg"></span>
+                <span onclick="exit()" class="item_user user_exit"><img src="images/exit.svg"></span>
+            </div>
+        </div>';
 
-    $result .= '<button type="button" onclick="add_new_user()">Добавить пользователя</button>';
+//    $result .= '<button type="button" onclick="add_new_user()">Добавить пользователя</button>';
+
+    $result .= '</div>';
 
     return $result;
 }
@@ -134,11 +148,14 @@ function get_user_page($user)
 function get_login_form()
 {
     echo '
-        <form id="login-form" method="post">
-            <input type="text" name="login" placeholder="Логин">
-            <input type="password" name="pass" placeholder="Пароль">
-            <button type="button" onclick="auth_user()">Войти</button>
-        </form>
+<div class="login_content">
+    <form id="login_form" method="post">
+        <div id="msg_text"></div>
+        <input type="text" name="login" placeholder="Логин">
+        <input type="password" name="pass" placeholder="Пароль">
+        <button type="button" onclick="auth_user()">Войти</button>
+    </form>
+</div>
     ';
 }
 
